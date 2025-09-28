@@ -25,13 +25,7 @@ RUN npm run build
 RUN ls -la /app/dist/
 
 # Production stage
-FROM nginx:alpine
-
-# Install curl for health checks
-RUN apk add --no-cache curl
-
-# Remove default nginx config
-RUN rm -f /etc/nginx/conf.d/default.conf
+FROM nginx:1.21-alpine
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
@@ -39,22 +33,14 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Set proper permissions
-RUN chown -R nginx:nginx /usr/share/nginx/html
-
-# Create log directory
-RUN mkdir -p /var/log/nginx
-
-# Debug: List files to verify they exist
+# Verify files copied correctly
 RUN ls -la /usr/share/nginx/html/
+
+# Test nginx config
 RUN nginx -t
 
 # Expose port 80
 EXPOSE 80
-
-# Add health check with more reasonable timing
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost/health || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
