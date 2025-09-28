@@ -10,8 +10,8 @@ services:
         - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
         - VITE_OPENAI_API_KEY=${VITE_OPENAI_API_KEY}
         - VITE_OPENAI_ORG_ID=${VITE_OPENAI_ORG_ID}
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
