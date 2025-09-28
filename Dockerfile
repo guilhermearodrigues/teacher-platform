@@ -27,6 +27,9 @@ RUN ls -la /app/dist/
 # Production stage
 FROM nginx:1.21-alpine
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
@@ -41,6 +44,10 @@ RUN nginx -t
 
 # Expose port 80
 EXPOSE 80
+
+# Add health check that Coolify expects
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
