@@ -33,8 +33,11 @@ RUN apk add --no-cache curl
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Use default nginx configuration with simple override
-RUN echo 'server { listen 80; location / { root /usr/share/nginx/html; index index.html; try_files $uri $uri/ /index.html; } location /health { return 200 "OK"; add_header Content-Type text/plain; } }' > /etc/nginx/conf.d/default.conf
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Debug: List files to verify they exist
+RUN ls -la /usr/share/nginx/html/
 
 # Expose port 80
 EXPOSE 80
